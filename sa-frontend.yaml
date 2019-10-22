@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sa-frontend
+spec:
+  replicas: 3
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: sa-frontend
+  template:
+    metadata:
+      labels:
+        app: sa-frontend
+    spec:
+      containers:
+      - image: bumblefeng/sentiment-analysis-frontend
+        imagePullPolicy: Always
+        name: sa-frontend
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sa-frontend-lb
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30000
+  selector:
+    app: sa-frontend
+  type: NodePort
+
